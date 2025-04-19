@@ -3,7 +3,7 @@ import whisperx
 
 def main():
     print("Loading Whisper‑medium model (CPU)...")
-    model = whisperx.load_model("medium", device="cpu")
+    model = whisperx.load_model("medium", device="cpu", compute_type="float32")
     data_dir = os.path.join(os.path.dirname(__file__), "test_data")
     for fname in sorted(os.listdir(data_dir)):
         if not fname.lower().endswith(".wav"):
