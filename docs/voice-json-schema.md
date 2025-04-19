@@ -24,3 +24,4 @@
 | ShowStockReport  | date_from?, date_to?                       | {"intent":"ShowStockReport","date_from":"2025-05-01","date_to":"2025-05-10"}                           |
 | ShowMovementReport | date_from, date_to                       | {"intent":"ShowMovementReport","date_from":"2025-05-01","date_to":"2025-05-10"}                       |
 | Help             | —                                          | {"intent":"Help"}                                                                                   |
+| AddCatalogItem     | Наименование, Артикул?, Штрихкод?, Единица?, ЦенаЗакупки? | {"intent":"AddCatalogItem","Наименование":"Монитор LG","Артикул":"LG123","Штрихкод":"1","Единица":"шт","ЦенаЗакупки":5} |

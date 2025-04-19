@@ -49,6 +49,22 @@ def parse_intent(text: str) -> Dict[str, Any]:
     # 7) Помощь
     if "что я могу сказать" in txt or "помощ" in txt:
         return {"intent": "Help", "fields": {}}
+     # 8) Добавление номенклатуры в справочник
+    m = re.search(
+        r"добав(?:ьте|ь) номенклатур(?:у)? (?P<name>[\w\s]+)"
+        r"(?:[, ]+артикул\s*(?P<art>[\w\d]+))?"
+        r"(?:[, ]+штрихкод\s*(?P<bar>\d+))?"
+        r"(?:[, ]+единица\s*(?P<u>[\w]+))?"
+        r"(?:[, ]+цена(?:закупки)?\s*(?P<p>\d+))?",
+        txt
+    )
+    if m:
+        fields: Dict[str, Any] = {"Наименование": m.group("name").strip()}
+        if m.group("art"):  fields["Артикул"] = m.group("art")
+        if m.group("bar"):  fields["Штрихкод"] = m.group("bar")
+        if m.group("u"):    fields["Единица"] = m.group("u")
+        if m.group("p"):    fields["ЦенаЗакупки"] = float(m.group("p"))
+        return {"intent": "AddCatalogItem", "fields": fields}
 
     # По умолчанию
     return {"intent": "Unknown", "fields": {"text": text}}
