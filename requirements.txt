@@ -3,3 +3,4 @@ uvicorn[standard]==0.29.0
 whisperx==3.3.2
 pydantic==2.7.0
 faster-whisper==1.1.0
+python-multipart==0.0.6
