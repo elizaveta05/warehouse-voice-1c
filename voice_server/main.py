@@ -52,3 +52,13 @@ async def recognize(file: UploadFile = File(...)):
 
     # 5) Возвращаем JSON
     return RecognizeResponse(intent=parsed["intent"], fields=parsed["fields"])
+    
+@app.post("/hotword")
+async def hotword(file: UploadFile = File(...)):
+    """Принимает 1‑2 сек OGG/WAV, возвращает {"ok": true} если услышали
+       «начать голосовое управление» (регистронезависимо)."""
+    # сохраняем во временный файл + при необходимости ffmpeg → wav16k
+    path = save_tmp(file)
+    res = model.transcribe(path, max_new_tokens=0)  # WhisperX на крошке
+    text = " ".join([s["text"] for s in res["segments"]]).lower()
+    return {"ok": "начать голосовое управление" in text}
