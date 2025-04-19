@@ -1,8 +1,4 @@
--fastapi==0.110.0
--uvicorn[standard]==0.29.0
--whisperx==4.5.1
--pydantic==2.7.0
-+fastapi==0.110.0
-+uvicorn[standard]==0.29.0
-+whisperx==3.3.2
-+pydantic==2.7.0
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+whisperx==3.3.2
+pydantic==2.7.0
