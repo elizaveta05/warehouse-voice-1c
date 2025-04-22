@@ -20,8 +20,8 @@ app = FastAPI(title="Warehouse Voice API")
 print("Loading Whisper‑medium model (CPU, float32)…")
 whisper_model = whisperx.load_model("medium", device="cpu", compute_type="float32")
 
-print("Loading Vosk hotword model…")
-vosk_model = VoskModel("models/vosk-model-ru")  # путь к Vosk‑модели
+# print("Loading Vosk hotword model…")
+# vosk_model = VoskModel("models/vosk-model-ru")  # путь к Vosk‑модели
 
 class RecognizeResponse(BaseModel):
     intent: str
