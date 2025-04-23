@@ -16,7 +16,7 @@ TRIGGER_PHRASE = "начать голосовое управление"
 SERVER_URL = "http://localhost:8000"  
 
 # === VOSK ===
-vosk_model = Model("C:\\Users\\elozo\\OneDrive\\Рабочий стол\\ДипломПО\\warehouse-voice-1c\\models\\vosk-model-small-ru-0.22")
+vosk_model = Model(r"C:\vosk\vosk-model-small-ru-0.22")
 
 vosk_recognizer = KaldiRecognizer(vosk_model, SAMPLERATE)
 
