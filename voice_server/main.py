@@ -4,6 +4,8 @@ from starlette.responses import JSONResponse
 import tempfile, subprocess, uuid, shutil, os, json, pathlib, logging
 
 from .config import settings
+from .hybrid_recognizer import transcribe_and_parse
+
 
 app = FastAPI(title="Warehouse Voice Server")
 
@@ -18,7 +20,11 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 
 try:
     import whisperx
-    model = whisperx.load_model(settings.voicemodel, device=settings.device)
+   model = whisperx.load_model(
+        settings.voicemodel,          # 'small'
+        device=settings.device,       # 'cpu'
+        compute_type="int8"           # ← безопасно для CPU
+    )
 except Exception as e:
     logging.error("Cannot load whisperx model: %s", e)
     model = None
@@ -43,21 +49,13 @@ def save_tmp(upload: UploadFile) -> pathlib.Path:
 
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
-    if model is None:
-        raise HTTPException(500, "Model not loaded")
+    """
+    Получаем WAV (16 kHz mono). Быстрая попытка Vosk + fallback WhisperX.
+    Отдаём JSON, готовый для 1С.
+    """
+    path = save_tmp(file)                # как и раньше: сохраняем/конвертируем
 
-    path = save_tmp(file)
-    logging.info("Saved upload to %s (%d bytes)", path, path.stat().st_size)
+    result = transcribe_and_parse(path)  # <-- новая функция
+    logging.info("Engine=%s | Text='%s'", result["engine"], result["text"])
 
-    try:
-        result = model.transcribe(str(path))
-        logging.info("Transcript: %s", result["text"])
-        return JSONResponse(result)
-    except Exception as e:
-        logging.exception("WhisperX failed")
-        raise HTTPException(500, str(e))
-    finally:
-        try:
-            shutil.rmtree(path.parent)
-        except Exception:
-            pass
+    return JSONResponse(result)
