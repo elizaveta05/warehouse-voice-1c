@@ -56,7 +56,11 @@ _wh_model = whisperx.load_model(
 
 def _recognize_whisper(wav: pathlib.Path) -> str:
     """Более точное, но медленное распознавание."""
-    return _wh_model.transcribe(str(wav))["text"]
+    result = _wh_model.transcribe(str(wav))
+    print("WhisperX output:", result)
+    if "segments" in result:
+        return " ".join([seg["text"] for seg in result["segments"]])
+    return result.get("text", "")
 
 # ---------- Public API ----------
 from .nlu.intent_parser import parse as parse_intent
@@ -79,6 +83,6 @@ def transcribe_and_parse(wav_path: pathlib.Path) -> dict:
         return {"text": text, "engine": "vosk", **intent_data}
 
     # ------ fallback ------
-    text = _recognize_whisper(wav_path)
+    text = _recognize_whisper(wav_path).strip().lower()
     intent_data = parse_intent(text)
     return {"text": text, "engine": "whisper", **intent_data}

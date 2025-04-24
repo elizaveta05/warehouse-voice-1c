@@ -7,4 +7,5 @@ python-multipart==0.0.6
 vosk==0.3.45
 sounddevice==0.4.6
 requests==2.32.3
-torch
+torch==1.10.2
+pyannote.audio==0.0.1

@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 
 try:
     import whisperx
-   model = whisperx.load_model(
+    model = whisperx.load_model(
         settings.voicemodel,          # 'small'
         device=settings.device,       # 'cpu'
         compute_type="int8"           # ← безопасно для CPU
