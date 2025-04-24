@@ -1,96 +1,131 @@
-import queue
-import sounddevice as sd
-import wave
-import os
-import requests
-import time
-import io
-import json
+"""
+voice_agent/agent.py
+Запускается из 1С.  Слушает триггер‑фразу («начать голосовое управление»),
+записывает аудио команды в WAV 16 kHz mono и отправляет
+на voice_server /recognize.  Работает независимо от GUI‑потоков 1С.
+"""
+
+import json, queue, threading, time, logging, wave, io, requests, os, sys, pathlib
+from collections import deque
+from contextlib import contextmanager
+
+import pyaudio
 from vosk import Model, KaldiRecognizer
-from faster_whisper import WhisperModel
 
-# === НАСТРОЙКИ ===
-SAMPLERATE = 16000
-CHANNELS = 1
-TRIGGER_PHRASE = "начать голосовое управление"
-SERVER_URL = "http://localhost:8000"  
+BASE_DIR = pathlib.Path(__file__).resolve().parent
+CONFIG = json.loads((BASE_DIR / "config.json").read_text(encoding="utf-8"))
 
-# === VOSK ===
-vosk_model = Model(r"C:\vosk\vosk-model-small-ru-0.22")
+logging.basicConfig(
+    filename=BASE_DIR / "agent.log",
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
 
-vosk_recognizer = KaldiRecognizer(vosk_model, SAMPLERATE)
+RATE = CONFIG["SAMPLERATE"]
+CHANNELS = CONFIG["CHANNELS"]
+BITS = CONFIG["BITS"]
+DEVICE_INDEX = CONFIG["DEVICE_INDEX"]
 
-# === WHISPER ===
-whisper = WhisperModel("small", device="cpu", compute_type="int8")
+TRIGGER_PHRASE = CONFIG["TRIGGER_PHRASE"].lower()
+SERVER_URL = CONFIG["SERVER_URL"].rstrip("/")
 
-# === Очередь для потока аудио ===
-q = queue.Queue()
+SILENCE_MS = CONFIG["SILENCE_MS"]
+SILENCE_THRESHOLD = CONFIG["SILENCE_THRESHOLD"]
+MAX_RECORD_SEC = CONFIG["MAX_RECORD_SEC"]
 
-def audio_callback(indata, frames, time_, status):
-    if status:
-        print("⚠️", status)
-    q.put(bytes(indata))
 
-def record_audio(duration_sec=4):
-    """Собираем аудиофрагмент и возвращаем его как bytes в формате WAV"""
-    audio_data = bytearray()
-    target_bytes = SAMPLERATE * CHANNELS * 2 * duration_sec
-    while len(audio_data) < target_bytes:
-        audio_data.extend(q.get())
-
-    wav_io = io.BytesIO()
-    with wave.open(wav_io, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(2)
-        wf.setframerate(SAMPLERATE)
-        wf.writeframes(audio_data)
-    wav_io.seek(0)
-    return wav_io.read()
-
-def transcribe_whisper(wav_bytes):
-    """Расшифровка через faster-whisper"""
+@contextmanager
+def open_audio_stream():
+    pa = pyaudio.PyAudio()
+    stream = pa.open(
+        format=pyaudio.paInt16,
+        channels=CHANNELS,
+        rate=RATE,
+        input=True,
+        frames_per_buffer=RATE // 10,
+        input_device_index=DEVICE_INDEX,
+    )
     try:
-        with io.BytesIO(wav_bytes) as wf:
-            segments, _ = whisper.transcribe(wf, beam_size=1)
-            return " ".join(seg.text for seg in segments).strip()
-    except Exception as e:
-        print("❌ Whisper error:", e)
-        return ""
+        yield stream
+    finally:
+        stream.stop_stream()
+        stream.close()
+        pa.terminate()
 
-def send_to_server(text):
-    try:
-        print("🧠 Распознано:", text)
-        resp = requests.post(f"{SERVER_URL}/recognize", files={
-            "file": ("command.wav", io.BytesIO(text.encode()), "audio/wav")
-        })
-        if resp.ok:
-            intent_data = resp.json()
-            print("📤 Отправка в 1С:", intent_data)
-            requests.post(f"{SERVER_URL}/command", json=intent_data)
-        else:
-            print("❌ Ошибка /recognize:", resp.status_code)
-    except Exception as e:
-        print("❌ Ошибка при отправке в 1С:", e)
 
-def main():
-    print("🎙 Агент запущен. Ожидание горячей фразы...")
-    with sd.RawInputStream(samplerate=SAMPLERATE, blocksize=8000, dtype='int16',
-                           channels=CHANNELS, callback=audio_callback):
+def rms(frame_bytes: bytes) -> int:
+    """Root‑mean‑square of 16‑bit samples."""
+    import numpy as np
+
+    a = np.frombuffer(frame_bytes, dtype=np.int16)
+    return int((a.astype(np.int32) ** 2).mean() ** 0.5)
+
+
+def detect_hotword():
+    """Горячая фраза через Vosk."""
+    model_path = os.environ.get("VOSK_MODEL", str(BASE_DIR / "vosk-model-small-ru-0.22"))
+    if not os.path.isdir(model_path):
+        logging.error("Vosk model not found: %s", model_path)
+        sys.exit(1)
+
+    model = Model(model_path)
+    rec = KaldiRecognizer(model, RATE)
+
+    logging.info("Start listening…")
+    with open_audio_stream() as stream:
         while True:
-            data = q.get()
-            if vosk_recognizer.AcceptWaveform(data):
-                res = json.loads(vosk_recognizer.Result())
-                text = res.get("text", "").lower()
-                if TRIGGER_PHRASE in text:
-                    print("🚀 Обнаружена горячая фраза:", text)
-                    print("👂 Я вас слушаю...")
-                    audio = record_audio(duration_sec=4)
-                    result_text = transcribe_whisper(audio)
-                    if result_text:
-                        send_to_server(result_text)
-                    else:
-                        print("⚠️ Команда не распознана.")
-                    print("↩️ Возврат в режим ожидания горячей фразы...")
+            data = stream.read(RATE // 10, exception_on_overflow=False)
+            if rec.AcceptWaveform(data):
+                text = json.loads(rec.Result())["text"]
+                logging.debug("Partial phrase: %s", text)
+                if TRIGGER_PHRASE in text.lower():
+                    logging.info("Hotword detected")
+                    record_and_send(stream)  # stream already open
+                    rec.Reset()
+
+
+def record_and_send(stream):
+    """Записываем до тишины или MAX_RECORD_SEC, отправляем серверу."""
+    frames = []
+    silent_chunks = 0
+    chunk_size = RATE // 10  # 100 ms
+    max_chunks = int(MAX_RECORD_SEC * 10)
+
+    for i in range(max_chunks):
+        chunk = stream.read(chunk_size, exception_on_overflow=False)
+        frames.append(chunk)
+        if rms(chunk) < SILENCE_THRESHOLD:
+            silent_chunks += 1
+        else:
+            silent_chunks = 0
+
+        if silent_chunks * 100 >= SILENCE_MS and i > 5:
+            break
+
+    wav_bytes = io.BytesIO()
+    with wave.open(wav_bytes, "wb") as wf:
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(BITS // 8)
+        wf.setframerate(RATE)
+        wf.writeframes(b"".join(frames))
+
+    wav_bytes.seek(0)
+    logging.info("Sending %d bytes to server", len(wav_bytes.getbuffer()))
+    try:
+        resp = requests.post(
+            SERVER_URL + "/recognize",
+            data=wav_bytes,
+            headers={"Content-Type": "audio/wav"},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        logging.info("Server response: %s", resp.text)
+    except Exception as e:
+        logging.exception("Failed to send audio: %s", e)
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        detect_hotword()
+    except KeyboardInterrupt:
+        print("Exiting")

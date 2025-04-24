@@ -1,103 +1,63 @@
-import os
-import json
-import subprocess
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-from typing import Dict, Any
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
+import tempfile, subprocess, uuid, shutil, os, json, pathlib, logging
 
-# ASR‑модель для команд
-import whisperx
-# Hotword‑детектор
-from vosk import Model as VoskModel, KaldiRecognizer
+from .config import settings
 
-# Ваш парсер интентов
-from nlu.intent_parser import parse_intent
+app = FastAPI(title="Warehouse Voice Server")
 
-app = FastAPI(title="Warehouse Voice API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.cors_origins],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Загрузка моделей при старте
-print("Loading Whisper‑medium model (CPU, float32)…")
-whisper_model = whisperx.load_model("medium", device="cpu", compute_type="float32")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-# print("Loading Vosk hotword model…")
-# vosk_model = VoskModel("models/vosk-model-ru")  # путь к Vosk‑модели
+try:
+    import whisperx
+    model = whisperx.load_model(settings.voicemodel, device=settings.device)
+except Exception as e:
+    logging.error("Cannot load whisperx model: %s", e)
+    model = None
 
-class RecognizeResponse(BaseModel):
-    intent: str
-    fields: Dict[str, Any]
 
-def save_tmp(file: UploadFile) -> str:
-    """Сохраняет UploadFile во временную папку, возвращает путь"""
-    temp_dir = os.path.join(os.getcwd(), "temp_audio")
-    os.makedirs(temp_dir, exist_ok=True)
-    in_path = os.path.join(temp_dir, file.filename)
-    with open(in_path, "wb") as f:
-        f.write(file.file.read())
-    return in_path
+def save_tmp(upload: UploadFile) -> pathlib.Path:
+    suffix = pathlib.Path(upload.filename or "audio").suffix or ".bin"
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="voice_", dir=settings.tmp_dir)) / f"in{suffix}"
+    with tmp.open("wb") as f:
+        shutil.copyfileobj(upload.file, f)
+    tmp_final = tmp
+    # Convert to 16k WAV if needed
+    if suffix.lower() != ".wav":
+        wav_path = tmp.with_suffix(".wav")
+        cmd = ["ffmpeg", "-y", "-i", str(tmp), "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", str(wav_path)]
+        result = subprocess.run(cmd, capture_output=True)
+        if result.returncode != 0:
+            raise HTTPException(400, f"FFmpeg error: {result.stderr.decode()}")
+        tmp_final = wav_path
+    return tmp_final
 
-def to_wav16(path: str) -> str:
-    """Конвертирует файл в WAV 16 kHz mono, возвращает путь к .wav"""
-    if path.lower().endswith(".wav"):
-        return path
-    wav_path = path + ".wav"
-    subprocess.run(
-        ["ffmpeg", "-i", path, "-ar", "16000", "-ac", "1", wav_path, "-y"],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=True
-    )
-    return wav_path
 
-@app.get("/ping")
-async def ping():
-    return JSONResponse({"ok": True})
-
-@app.post("/hotword")
-async def hotword(file: UploadFile = File(...)):
-    """
-    Детектирует ключевую фразу «начать голосовое управление».
-    Принимает 1–2 с аудио, возвращает {"ok": true/false}.
-    """
-    # 1) Сохраняем и конвертим
-    in_path = save_tmp(file)
-    wav = to_wav16(in_path)
-
-    # 2) Инициализируем детектор
-    rec = KaldiRecognizer(vosk_model, 16000)
-    import wave
-    wf = wave.open(wav, "rb")
-
-    # 3) Читаем фреймы и проверяем
-    while True:
-        data = wf.readframes(4000)
-        if not data:
-            break
-        if rec.AcceptWaveform(data):
-            res = json.loads(rec.Result())
-            text = res.get("text", "").lower()
-            if "начать голосовое управление" in text:
-                return JSONResponse({"ok": True})
-    return JSONResponse({"ok": False})
-
-@app.post("/recognize", response_model=RecognizeResponse)
+@app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):
-    """
-    Транскрипция полного аудио (3–5 с) и парсинг интента.
-    Возвращает JSON { intent: ..., fields: {...} }.
-    """
-    # 1) Сохраняем и конвертим
-    in_path = save_tmp(file)
-    wav = to_wav16(in_path)
+    if model is None:
+        raise HTTPException(500, "Model not loaded")
 
-    # 2) ASR через WhisperX
-    result = whisper_model.transcribe(wav)
-    segments = result.get("segments", [])
-    text = " ".join(seg["text"] for seg in segments).strip()
-    if not text:
-        raise HTTPException(status_code=400, detail="Не удалось распознать речь")
+    path = save_tmp(file)
+    logging.info("Saved upload to %s (%d bytes)", path, path.stat().st_size)
 
-    # 3) NLU‑парсинг
-    parsed = parse_intent(text)
-
-    return RecognizeResponse(intent=parsed["intent"], fields=parsed["fields"])
+    try:
+        result = model.transcribe(str(path))
+        logging.info("Transcript: %s", result["text"])
+        return JSONResponse(result)
+    except Exception as e:
+        logging.exception("WhisperX failed")
+        raise HTTPException(500, str(e))
+    finally:
+        try:
+            shutil.rmtree(path.parent)
+        except Exception:
+            pass
