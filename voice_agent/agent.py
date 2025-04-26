@@ -9,7 +9,7 @@ import json, queue, threading, time, logging, wave, io, requests, os, sys, pathl
 from collections import deque
 from contextlib import contextmanager
 
-import pyaudio
+
 from vosk import Model, KaldiRecognizer
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
@@ -63,7 +63,9 @@ def rms(frame_bytes: bytes) -> int:
 
 def detect_hotword():
     """Горячая фраза через Vosk."""
-    model_path = os.environ.get("VOSK_MODEL", str(BASE_DIR / "vosk-model-small-ru-0.22"))
+    DEFAULT_MODEL = BASE_DIR.parent / "models" / "vosk-model-small-ru-0.22"
+    model_path = os.environ.get("VOSK_MODEL", str(DEFAULT_MODEL))
+
     if not os.path.isdir(model_path):
         logging.error("Vosk model not found: %s", model_path)
         sys.exit(1)

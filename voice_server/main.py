@@ -45,7 +45,14 @@ def save_tmp(upload: UploadFile) -> pathlib.Path:
             raise HTTPException(400, f"FFmpeg error: {result.stderr.decode()}")
         tmp_final = wav_path
     return tmp_final
-
+    
+@app.get("/ping")
+async def ping():
+    """
+    Простая проверка доступности сервера.
+    1С будет получать код 200 и JSON {"status":"ok"}.
+    """
+    return JSONResponse({"status": "ok"})
 
 @app.post("/recognize")
 async def recognize(file: UploadFile = File(...)):

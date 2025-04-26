@@ -1,0 +1,12 @@
+{
+    "SAMPLERATE": 16000,
+    "CHANNELS": 1,
+    "BITS": 16,
+    "DEVICE_INDEX": 0,
+    "TRIGGER_PHRASE": "начать голосовое управление",
+    "SERVER_URL": "http://192.168.0.129:8000",
+    "SILENCE_MS": 500,
+    "SILENCE_THRESHOLD": 500,
+    "MAX_RECORD_SEC": 5
+  }
+  
