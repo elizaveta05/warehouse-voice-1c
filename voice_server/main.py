@@ -1,13 +1,14 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 import tempfile, subprocess, shutil, os, json, pathlib, logging
 from collections import deque
-
+import pythoncom
+from win32com.client import Dispatch
 from .config import settings
 from .hybrid_recognizer import transcribe_and_parse
 
-# Настройка логирования серверных операций
+# Логирование
 logging.basicConfig(
     filename="voice_server.log",
     level=logging.DEBUG,
@@ -15,6 +16,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("warehouse_voice_server")
 
+# FastAPI + CORS
 app = FastAPI(title="Warehouse Voice Server")
 app.add_middleware(
     CORSMiddleware,
@@ -23,9 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# очередь для распознанных команд
-_queue: deque[dict] = deque()
-
+# Вспомогательные функции
 def save_tmp(upload: UploadFile) -> pathlib.Path:
     suffix = pathlib.Path(upload.filename or "audio").suffix or ".bin"
     tmp_dir = pathlib.Path(tempfile.mkdtemp(prefix="voice_", dir=settings.tmp_dir))
@@ -50,12 +50,46 @@ def save_tmp(upload: UploadFile) -> pathlib.Path:
 
     return raw_path
 
+# 1С через COM‑соединение
+def send_to_1c(intent: str | None, fields: dict | None) -> None:
+    """
+    Вызывает экспортированную процедуру 1С 'ПолучениеКомандССервера.ЗаписатьКомандуВРегистр'
+    напрямую через COMConnector.Call.
+    """
+    if not intent:
+        logger.warning("send_to_1c: empty intent, skipping")
+        return
+
+    pythoncom.CoInitialize()
+    try:
+        # 1. Подключаемся к ИБ
+        connector = Dispatch("V83.COMConnector")
+        ib_path = r'File="C:\Users\elozo\OneDrive\Документы\InfoBase7"'
+        session = connector.Connect(ib_path)
+
+        # 2. Формируем JSON-параметр
+        payload = json.dumps(fields or {}, ensure_ascii=False)
+
+        # 3. Вызываем экспортированную процедуру:
+        #    первый аргумент — полное имя 'Модуль.Процедура', далее её параметры
+        session.COMConnection.ЗаписатьКомандуВРегистр(intent, payload)
+
+
+        logger.info("✔ sent to 1С: intent=%s", intent)
+
+    except Exception:
+        logger.error("❌ send_to_1c failed", exc_info=True)
+    finally:
+        pythoncom.CoUninitialize()
+
+# Эндпоинты
+
 @app.get("/ping")
 async def ping():
     return JSONResponse({"status": "ok"})
 
 @app.post("/recognize")
-async def recognize(request: Request, file: UploadFile = File(...)):
+async def recognize(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     client = request.client.host
     logger.info("🟢 /recognize from %s: filename=%s", client, file.filename)
     try:
@@ -72,30 +106,10 @@ async def recognize(request: Request, file: UploadFile = File(...)):
         logger.error("transcribe_and_parse failed", exc_info=True)
         raise HTTPException(500, f"Recognition error: {e}")
 
-    # 3) положить в очередь для 1С
-    #    1С ждёт поля Intent и Fields
-    _queue.append({
-        "intent": result.get("intent"),
-        "fields": result.get("fields", {}),
-    })
-    logger.info("   ➕ queued intent `%s`", result.get("intent"))
+     # 3. асинхронно отправляем в 1С
+    background_tasks.add_task(send_to_1c, result.get("intent"), result.get("fields", {}))
 
-    # 4) вернуть ответ сразу
-    logger.info("   ✅ returning JSON to client: %s", json.dumps(result, ensure_ascii=False))
+    # 4. и сразу возвращаем клиенту результат
     return JSONResponse(result)
 
-@app.get("/intent")
-async def get_intent():
-    """
-    1С опрашивает этот эндпоинт:
-     - если есть команда — отдать её и удалить из очереди (200 + JSON)
-     - иначе — вернуть 204 No Content без тела
-    """
-    if not _queue:
-        return Response(status_code=204)
-    cmd = _queue.popleft()
-    logger.info("🟢 /intent -> %s", cmd)
-    return JSONResponse({
-        "Intent": cmd["intent"],
-        "Fields": cmd["fields"],
-    })
+
