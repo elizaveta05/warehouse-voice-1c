@@ -12,7 +12,7 @@ def test_com_connection():
         conn = connector.Connect(ib_path)
 
         # Вызываем тестовую процедуру из модуля 1С
-        conn.COMConnection.TestCOMConnection()
+        conn.COMConnectionTest.TestCOMConnection()
 
         print("✅ Вызов TestCOMConnection отправлен, проверьте журнал регистрации 1С.")
     except Exception as e:
