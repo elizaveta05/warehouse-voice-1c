@@ -1,11 +1,12 @@
+# voice_server/app.py
+
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Response, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-import tempfile, subprocess, shutil, os, json, pathlib, logging
 from collections import deque
+import tempfile, subprocess, shutil, os, json, pathlib, logging
 import pythoncom
 from win32com.client import Dispatch
-from win32com.client import gencache
 from .config import settings
 from .hybrid_recognizer import transcribe_and_parse
 
@@ -25,11 +26,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 # Очередь отложенных команд для 1С
 pending_commands = deque()
 
-# Вспомогательные функции
 def save_tmp(upload: UploadFile) -> pathlib.Path:
+    """
+    Сохраняет пришедший файл в temp, конвертирует в WAV 16 kHz/mono через ffmpeg (если нужно)
+    """
     suffix = pathlib.Path(upload.filename or "audio").suffix or ".bin"
     tmp_dir = pathlib.Path(tempfile.mkdtemp(prefix="voice_", dir=settings.tmp_dir))
     raw_path = tmp_dir / f"in{suffix}"
@@ -53,32 +57,30 @@ def save_tmp(upload: UploadFile) -> pathlib.Path:
 
     return raw_path
 
-# 1С через COM‑соединение с HTTP‑fallback
 def send_to_1c(intent: str, fields: dict) -> None:
+    """
+    Отправляет команду в 1С через COM. При ошибке — кладёт в очередь pending_commands.
+    """
     pythoncom.CoInitialize()
     try:
         connector = Dispatch("V83.COMConnector")
-        # Подключаемся к файловой базе
         ib_path = r'File="C:\Users\elozo\OneDrive\Документы\InfoBase7"'
         conn = connector.Connect(ib_path)
 
-        # диагностика (выведет список всех ваших экспортных процедур):
         available = [m for m in dir(conn) if not m.startswith("_")]
-        print("Экспортные процедуры в conn:", available)
+        logger.debug("Экспортные процедуры в conn: %s", available)
 
         payload = json.dumps(fields or {}, ensure_ascii=False)
+        logger.debug("Передаваемые данные в 1С через COM: intent=%s, fields=%s", intent, payload)
 
-        print("Передаваемые данные в 1с через COM:", intent, payload)
+        # Здесь ваш метод записи команды
         conn.COMConnection.WriteTheCommandToTheRegister(intent, payload)
-
-        print("✔ Команда записана через COM")
+        logger.info("✔ Команда успешно записана через COM")
     except Exception as e:
-        print("❌ Не получилось через COM, береём в очередь:", e)
+        logger.error("❌ Ошибка отправки в 1С через COM: %s — добавляю в очередь", e)
         pending_commands.append({"intent": intent, "fields": fields or {}})
     finally:
         pythoncom.CoUninitialize()
-
-# Эндпоинты
 
 @app.get("/ping")
 async def ping():
@@ -88,36 +90,41 @@ async def ping():
 async def get_intent():
     """
     1С фон может опрашивать этот метод раз в несколько секунд.
-    Возвращает по одной команде из очереди или 204, если команд нет.
+    Возвращает одну команду из очереди или 204, если пусто.
     """
     if pending_commands:
         cmd = pending_commands.popleft()
         logger.info("/intent: delivering pending command %s", cmd)
         return JSONResponse(cmd)
-    else:
-        return Response(status_code=204)
+    return Response(status_code=204)
 
 @app.post("/recognize")
-async def recognize(request: Request, background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def recognize(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...)
+):
     client = request.client.host
     logger.info("🟢 /recognize from %s: filename=%s", client, file.filename)
+
+    # Сохраняем и конвертируем файл
     try:
         path = save_tmp(file)
-        logger.info("Uploaded file saved to %s", path)
+        logger.debug("Uploaded file saved to %s", path)
     except Exception as e:
-        logger.error("save_tmp failed", exc_info=True)
+        logger.exception("save_tmp failed")
         raise HTTPException(400, f"Cannot save file: {e}")
 
+    # Распознаём и парсим команду
     try:
         result = transcribe_and_parse(path)
         logger.info("transcribe_and_parse result: %s", result)
     except Exception as e:
-        logger.error("transcribe_and_parse failed", exc_info=True)
+        logger.exception("transcribe_and_parse failed")
         raise HTTPException(500, f"Recognition error: {e}")
 
-    # Асинхронно отправляем в 1С (COM или очередь для HTTP)
+    # Асинхронно шлём в 1С
     background_tasks.add_task(send_to_1c, result.get("intent"), result.get("fields", {}))
 
-    # Возвращаем результат клиенту сразу
+    # Отдаём клиенту результат сразу
     return JSONResponse(result)
-

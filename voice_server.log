@@ -1,0 +1,160 @@
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:26:48,383 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:26:48,384 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:26:48,385 [DEBUG] multipart.multipart: Calling on_part_data with data[132:121776]
+2025-05-11 20:26:48,385 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:26:48,385 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:26:48,387 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:26:48,389 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_ya2cxgpu\in.wav
+2025-05-11 20:26:48,391 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_ya2cxgpu\in.wav
+2025-05-11 20:26:48,698 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:26:48,698 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:27:04,725 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [{'text': ' Создай документ приходная-накладная.', 'start': 0.706, 'end': 3.423}], 'language': 'ru'}
+2025-05-11 20:27:04,726 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:27:04,726 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': 'создай документ приходнаянакладная', 'engine': 'whisper', 'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:27:05,961 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:27:05,962 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=Unknown, fields={}
+2025-05-11 20:27:06,030 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:27:32,887 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:27:32,888 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:27:32,888 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:27:32,888 [DEBUG] multipart.multipart: Calling on_part_data with data[132:105776]
+2025-05-11 20:27:32,888 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:27:32,889 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:27:32,889 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:27:32,890 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_dielxj4x\in.wav
+2025-05-11 20:27:32,891 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_dielxj4x\in.wav
+2025-05-11 20:27:33,154 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:27:33,155 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:27:47,832 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [{'text': ' Покажи список приходных накладных.', 'start': 0.79, 'end': 3.001}], 'language': 'ru'}
+2025-05-11 20:27:47,832 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'OpenDocumentList', 'fields': {'doc': 'приходных накладных'}}
+2025-05-11 20:27:47,832 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': 'покажи список приходных накладных', 'engine': 'whisper', 'intent': 'OpenDocumentList', 'fields': {'doc': 'приходных накладных'}}
+2025-05-11 20:27:48,631 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:27:48,633 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=OpenDocumentList, fields={"doc": "приходных накладных"}
+2025-05-11 20:27:48,698 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:28:21,599 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:28:21,599 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:28:21,599 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:28:21,599 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_part_data with data[132:32437]
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_part_data with data[0:1]
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_part_data with data[32438:33195]
+2025-05-11 20:28:21,600 [DEBUG] multipart.multipart: Calling on_part_data with data[0:1]
+2025-05-11 20:28:21,601 [DEBUG] multipart.multipart: Calling on_part_data with data[33196:99376]
+2025-05-11 20:28:21,601 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:28:21,601 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:28:21,601 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:28:21,602 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_4gy9nfom\in.wav
+2025-05-11 20:28:21,604 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_4gy9nfom\in.wav
+2025-05-11 20:28:21,923 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:28:21,923 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:28:35,957 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [{'text': ' Создай приходную накладную.', 'start': 0.419, 'end': 2.579}], 'language': 'ru'}
+2025-05-11 20:28:35,957 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'CreateArrival', 'fields': {}}
+2025-05-11 20:28:35,957 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': 'создай приходную накладную', 'engine': 'whisper', 'intent': 'CreateArrival', 'fields': {}}
+2025-05-11 20:28:36,966 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:28:36,967 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=CreateArrival, fields={}
+2025-05-11 20:28:37,031 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:32:44,446 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:32:44,447 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:32:44,447 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:32:44,449 [DEBUG] multipart.multipart: Calling on_part_data with data[132:32176]
+2025-05-11 20:32:44,450 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:32:44,450 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:32:44,460 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:32:44,468 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_gvrl7mqd\in.wav
+2025-05-11 20:32:44,472 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_gvrl7mqd\in.wav
+2025-05-11 20:32:44,788 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:32:44,788 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:32:47,157 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [], 'language': 'ru'}
+2025-05-11 20:32:47,157 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:32:47,157 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': '', 'engine': 'whisper', 'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:32:52,194 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:32:52,194 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=Unknown, fields={}
+2025-05-11 20:32:57,245 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:33:11,980 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:33:11,980 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:33:11,980 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:33:11,980 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:33:11,981 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:33:11,981 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:33:11,981 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:33:11,981 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:33:11,981 [DEBUG] multipart.multipart: Calling on_part_data with data[132:105776]
+2025-05-11 20:33:11,982 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:33:11,982 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:33:11,983 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:33:11,984 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_jvcx8hmo\in.wav
+2025-05-11 20:33:11,986 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_jvcx8hmo\in.wav
+2025-05-11 20:33:12,248 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:33:12,248 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:33:27,419 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [{'text': ' Покажи список приходных накладных.', 'start': 0.841, 'end': 2.883}], 'language': 'ru'}
+2025-05-11 20:33:27,420 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'OpenDocumentList', 'fields': {'doc': 'приходных накладных'}}
+2025-05-11 20:33:27,420 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': 'покажи список приходных накладных', 'engine': 'whisper', 'intent': 'OpenDocumentList', 'fields': {'doc': 'приходных накладных'}}
+2025-05-11 20:33:28,299 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:33:28,299 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=OpenDocumentList, fields={"doc": "приходных накладных"}
+2025-05-11 20:33:28,364 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:35:46,326 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:35:46,328 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:35:46,328 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:35:46,329 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:35:46,329 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:35:46,329 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:35:46,329 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:35:46,330 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:35:46,330 [DEBUG] multipart.multipart: Calling on_part_data with data[132:38576]
+2025-05-11 20:35:46,331 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:35:46,331 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:35:46,336 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:35:46,338 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_6oqi3u1b\in.wav
+2025-05-11 20:35:46,342 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_6oqi3u1b\in.wav
+2025-05-11 20:35:46,573 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:35:46,573 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:35:47,985 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [], 'language': 'ru'}
+2025-05-11 20:35:47,986 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:35:47,986 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': '', 'engine': 'whisper', 'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:35:49,827 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:35:49,828 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=Unknown, fields={}
+2025-05-11 20:35:49,942 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
+2025-05-11 20:36:45,599 [DEBUG] multipart.multipart: Calling on_part_begin with no data
+2025-05-11 20:36:45,599 [DEBUG] multipart.multipart: Calling on_header_field with data[36:55]
+2025-05-11 20:36:45,600 [DEBUG] multipart.multipart: Calling on_header_value with data[57:103]
+2025-05-11 20:36:45,600 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:36:45,600 [DEBUG] multipart.multipart: Calling on_header_field with data[105:117]
+2025-05-11 20:36:45,601 [DEBUG] multipart.multipart: Calling on_header_value with data[119:128]
+2025-05-11 20:36:45,601 [DEBUG] multipart.multipart: Calling on_header_end with no data
+2025-05-11 20:36:45,601 [DEBUG] multipart.multipart: Calling on_headers_finished with no data
+2025-05-11 20:36:45,603 [DEBUG] multipart.multipart: Calling on_part_data with data[132:34743]
+2025-05-11 20:36:45,603 [DEBUG] multipart.multipart: Calling on_part_data with data[0:1]
+2025-05-11 20:36:45,604 [DEBUG] multipart.multipart: Calling on_part_data with data[34744:108976]
+2025-05-11 20:36:45,604 [DEBUG] multipart.multipart: Calling on_part_end with no data
+2025-05-11 20:36:45,604 [DEBUG] multipart.multipart: Calling on_end with no data
+2025-05-11 20:36:45,605 [INFO] warehouse_voice_server: \U0001f7e2 /recognize from 192.168.0.129: filename=command.wav
+2025-05-11 20:36:45,606 [DEBUG] warehouse_voice_server: save_tmp: writing raw upload to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_v5v6wy1s\in.wav
+2025-05-11 20:36:45,609 [DEBUG] warehouse_voice_server: Uploaded file saved to C:\Users\elozo\OneDrive\Рабочий стол\ДипломПО\warehouse-voice-1c\temp_audio\voice_v5v6wy1s\in.wav
+2025-05-11 20:36:45,940 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from Vosk: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:36:45,940 [INFO] voice_server.hybrid_recognizer: Vosk не распознал intent, падаем на WhisperX
+2025-05-11 20:37:03,008 [DEBUG] voice_server.hybrid_recognizer: WhisperX output: {'segments': [{'text': ' Покажи список приходных-накладных.', 'start': 0.875, 'end': 3.085}], 'language': 'ru'}
+2025-05-11 20:37:03,009 [DEBUG] voice_server.hybrid_recognizer: Parsed intent from WhisperX: {'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:37:03,009 [INFO] warehouse_voice_server: transcribe_and_parse result: {'text': 'покажи список приходныхнакладных', 'engine': 'whisper', 'intent': 'Unknown', 'fields': {}}
+2025-05-11 20:37:03,882 [DEBUG] warehouse_voice_server: Экспортные процедуры в conn: []
+2025-05-11 20:37:03,882 [DEBUG] warehouse_voice_server: Передаваемые данные в 1С через COM: intent=Unknown, fields={}
+2025-05-11 20:37:03,948 [INFO] warehouse_voice_server: \u2714 Команда успешно записана через COM
