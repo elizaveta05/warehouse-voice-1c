@@ -9,7 +9,7 @@ import re  # Для очистки и нормализации текста
 from vosk import Model as VoskModel, KaldiRecognizer  # Vosk для быстрого CTC-распознавания
 import whisperx  # WhisperX для более точного, но медленного распознавания
 
-from .nlu.intent_parser import parse as parse_intent  # Наш парсер интентов и полей из текста
+from .nlu.intent_parser import parse_and_enrich as parse_intent  # Наш парсер интентов и полей из текста
 
 # --- Настройка логирования --------------------------------
 # Получаем логгер текущего модуля по его __name__
