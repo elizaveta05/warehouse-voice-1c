@@ -4,7 +4,7 @@ import re
 from typing import Dict
 from ..metadata import MetadataMapper
 
-# корни слов – только уникальная часть!
+# корни слов 
 _STEMS = {
     "catalog": r"номенклатур|номенкатур|организац|сотрудник|должност|контрагент|адрес",
     "doc":     r"договор|приходн|расходн|накладн|перемещен|акт|заказ|расположен|инвент|инвентаризац|цен",
@@ -17,19 +17,19 @@ _mapper: MetadataMapper = MetadataMapper()
 # ---------- вспомогательные фрагменты ----------
 _TRIGGER  = r"(?:покажи|выведи|открой|открою|открыть)"
 _CATALOG  = rf"(?P<catalog>(?:{_STEMS['catalog']})\w*)"
-_DOC_SINGLE = rf"(?:{_STEMS['doc']})\w*"              # договор / накладн …
-_DOC_PHRASE = rf"(?P<doc>{_DOC_SINGLE}(?:\s+\w+)*)"   # допускаем добавочные слова
+_DOC_SINGLE = rf"(?:{_STEMS['doc']})\w*"             
+_DOC_PHRASE = rf"(?P<doc>{_DOC_SINGLE}(?:\s+\w+)*)"  
 _CATALOG_PHRASE = rf"(?P<catalog>{_STEMS['catalog']}\w*)"  
 _REPORT   = rf"(?P<report>(?:{_STEMS['report']})\w*)"
 _REG      = rf"(?P<reg>(?:{_STEMS['reg']})\w*)"
 _OPT_CODE = r"(?:\s+код\s+(?P<code>\S+))?"
 _OPT_NUM  = r"(?:\s+номер\s+(?P<number>\d+))?"
-_REPORT_SINGLE = rf"(?:{_STEMS['report']})\w*"          # остатк / хранен / …
+_REPORT_SINGLE = rf"(?:{_STEMS['report']})\w*"      
 _REPORT_PHRASE = rf"(?P<report>{_REPORT_SINGLE}(?:\s+\w+)*)"
 _REPORT_PREFIX = r"(?:отч[её]т(?:\s+\w+)*\s+)?"
-_STEMS["reg"] = r"закупочн|цена|цен|список"   # дополнили
-_REG_SINGLE = rf"(?:{_STEMS['reg']})\w*"              # закупочн / цена / …
-_REG_PHRASE = rf"(?P<reg>{_REG_SINGLE}(?:\s+\w+)*)"   # ► допускаем дополнительные слова
+_STEMS["reg"] = r"закупочн|цена|цен|список" 
+_REG_SINGLE = rf"(?:{_STEMS['reg']})\w*"           
+_REG_PHRASE = rf"(?P<reg>{_REG_SINGLE}(?:\s+\w+)*)"   
 _CREATE = r"(?:создай|создать|добавь|добавить|начать|начни|заключить)"
 
 
@@ -43,7 +43,7 @@ _PATTERNS = [
                 re.I), "OpenCatalogByName"),
 
     (re.compile(
-        rf"^{_CREATE}\s+(?:нов(ый|ую|ого)\s+)?"     # «создай новую …»
+        rf"^{_CREATE}\s+(?:нов(ый|ую|ого)\s+)?"    
         rf"{_CATALOG_PHRASE}$",
         re.I),"CreateCatalog"),
 

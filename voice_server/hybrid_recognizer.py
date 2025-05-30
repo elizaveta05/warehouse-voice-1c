@@ -62,7 +62,7 @@ def _recognize_vosk(wav: pathlib.Path) -> str:
     return clean_text(raw)
 
 # ---------- Загрузка и настройка WhisperX ----------
-_MODEL_NAME = "medium"    # Название модели: tiny | base | small | medium | large
+_MODEL_NAME = "small"    # Название модели: tiny | base | small | medium | large
 _DEVICE     = "cpu"       # Устройство: 'cpu' или 'cuda' для GPU
 logger.info("Loading WhisperX model %s on %s (int8)…", _MODEL_NAME, _DEVICE)
 # Загружаем модель WhisperX с низкой точностью int8 для экономии памяти
